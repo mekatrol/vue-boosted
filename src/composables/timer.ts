@@ -1,8 +1,12 @@
 import { onMounted, onUnmounted } from 'vue';
 
-export const useTimer = (
+export interface IntervalTimerCallback {
+  (): Promise<void>;
+}
+
+export const useIntervalTimer = (
   intervalMs: number,
-  task: () => Promise<void>
+  timerTickCallback: IntervalTimerCallback
 ): void => {
   // Keep track of interval timer handle
   let timerHandle = undefined as number | undefined;
@@ -11,7 +15,7 @@ export const useTimer = (
     timerHandle = window.setInterval(async (): Promise<void> => {
       try {
         // Await the task that is being executed
-        await task();
+        await timerTickCallback();
 
         // We swallow any errors because we assume
         // that tickTask is catching its own errors

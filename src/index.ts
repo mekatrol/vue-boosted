@@ -1,7 +1,1 @@
-'use strict';
-
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('../dist/timer.js');
-} else {
-  module.exports = require('../dist/timer.js');
-}
+export * from './composables/timer';

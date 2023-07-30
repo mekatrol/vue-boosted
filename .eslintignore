@@ -1,2 +1,4 @@
+webpack.config.cjs
 /dist
+/__staging
 /node_modules

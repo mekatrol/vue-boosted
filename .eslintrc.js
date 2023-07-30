@@ -96,8 +96,8 @@ module.exports = {
 
     'no-console':
       process.env.NODE_ENV === 'production'
-        ? ['error', { allow: ['warn', 'error'] }]
-        : ['warn', { allow: ['warn', 'error'] }],
+        ? ['error', { allow: ['info', 'warn', 'error'] }]
+        : ['warn', { allow: ['info', 'warn', 'error'] }],
 
     // The core 'no-unused-vars' rules (in the eslint:recommended ruleset)
     // does not work with type definitions

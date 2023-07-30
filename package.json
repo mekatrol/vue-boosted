@@ -3,10 +3,14 @@
   "version": "0.0.2",
   "description": "Vue.js (TypeScript) accessible (a11y), testable (UI automation) Vue component and utilities library.",
   "main": "index.ts",
+  "types": "index.d.ts",
+  "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
-    "build": "npx tsc",
-    "test": "npm run test"
+    "clean": "rimraf dist",
+    "build": "npm run clean && npx tsc && webpack --mode=production",
+    "test": "npm run test",
+    "watch": "tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -37,10 +41,19 @@
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "autoprefixer": "^10.4.2",
+    "dts-bundle": "^0.7.3",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
     "prettier": "^2.5.1",
-    "typescript": "^5.1.6"
-  }
+    "rimraf": "^5.0.1",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "files": [
+    "dist"
+  ]
 }
