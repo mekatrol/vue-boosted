@@ -1,0 +1,46 @@
+{
+  "name": "vue-boosted",
+  "version": "0.0.2",
+  "description": "Vue.js (TypeScript) accessible (a11y), testable (UI automation) Vue component and utilities library.",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts,.vue ./",
+    "build": "npx tsc",
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mekatrol/vue-boosted.git"
+  },
+  "keywords": [
+    "Vue.js",
+    "TypeScript",
+    "accessible",
+    "WCAG",
+    "a11y",
+    "automation",
+    "secure",
+    "safe"
+  ],
+  "author": "Paul Wojcik",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/mekatrol/vue-boosted/issues"
+  },
+  "homepage": "https://github.com/mekatrol/vue-boosted#readme",
+  "dependencies": {
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.20.21",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "prettier": "^2.5.1",
+    "typescript": "^5.1.6"
+  }
+}
