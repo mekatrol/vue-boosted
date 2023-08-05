@@ -12,7 +12,8 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
     "clean": "rimraf dist",
-    "build": "npm run clean && prettier src/ && npm run build:esm && npm run build:cjs",
+    "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "build": "npm run clean && npm run lint && npm run format && npm run build:esm && npm run build:cjs",
     "build:cjs": "tsc --module CommonJs --outDir dist/cjs",
     "build:esm": "tsc",
     "watch": "tsc --watch"

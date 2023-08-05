@@ -8,7 +8,7 @@ export const useIntervalTimer = (timerTickCallback: IntervalTimerCallback, inter
   // Keep track of interval timer handle
   let timerHandle = undefined as number | undefined;
 
-  const stopTimer = () => {
+  const stopTimer = (): void => {
     if (timerHandle !== undefined) {
       // Stop timer
       clearInterval(timerHandle);
