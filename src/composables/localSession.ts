@@ -1,56 +1,91 @@
 import { WritableComputedRef, computed } from 'vue';
 import { stringToBoolean } from '../services/conversionService';
 
-export const useLocalSessionString = (key: string, defaultValue?: string): WritableComputedRef<string> => {
-  let local = localStorage.getItem(key) ?? `${defaultValue}`;
+export interface LocalSessionValue<T> {
+  value: WritableComputedRef<T | null>;
+  remove(): void;
+}
 
-  // Wrap with proxy
-  const useValue = computed({
-    get: () => local,
-    set: (value: string) => {
-      local = value;
-      localStorage.setItem(key, `${value}`);
-    }
-  });
+abstract class BaseLocalSessionValue<T> implements LocalSessionValue<T> {
+  protected key: string;
+  public value: WritableComputedRef<T | null>;
 
-  return useValue;
-};
+  constructor(key: string) {
+    this.key = key;
 
-export const useLocalSessionBool = (key: string, defaultValue?: boolean): WritableComputedRef<boolean> => {
-  const localString = localStorage.getItem(key) ?? `${defaultValue}`;
-  let local = stringToBoolean(localString);
+    this.value = computed({
+      get: () => {
+        const value = localStorage.getItem(this.key);
 
-  // Wrap with proxy
-  const useValue = computed({
-    get: () => local,
-    set: (value: boolean) => {
-      local = value;
-      localStorage.setItem(key, `${value}`);
-    }
-  });
+        if (value === null || value === undefined) {
+          return null;
+        }
 
-  return useValue;
-};
+        return this.getValue(value);
+      },
+      set: (value) => {
+        if (value === undefined || value == null) {
+          localStorage.removeItem(this.key);
+          return;
+        }
 
-export const useLocalSessionInt = (key: string, defaultValue?: number): WritableComputedRef<number> => {
-  const localString = localStorage.getItem(key);
-
-  // Parse to integer value
-  let local = parseInt(localString ?? '');
-
-  // If parse failed then set to default value (or zero if default not set)
-  if (isNaN(local)) {
-    local = defaultValue ?? 0;
+        this.setValue(value);
+      }
+    });
   }
 
-  // Wrap with proxy
-  const useValue = computed({
-    get: () => local,
-    set: (value: number) => {
-      local = value;
-      localStorage.setItem(key, `${value}`);
-    }
-  });
+  remove = (): void => {
+    // Remove item from local storage
+    localStorage.removeItem(this.key);
+  };
 
-  return useValue;
-};
+  protected abstract getValue(value: string): T | null;
+  protected abstract setValue(value: T): void;
+}
+
+class BoolLocalSessionValue extends BaseLocalSessionValue<boolean> {
+  getValue(value: string): boolean | null {
+    // Return the string value casted to a boolean
+    return stringToBoolean(value);
+  }
+
+  setValue(value: boolean): void {
+    // Update local storage
+    localStorage.setItem(this.key, !!value ? 'true' : 'false');
+  }
+}
+
+class IntLocalSessionValue extends BaseLocalSessionValue<number> {
+  getValue(value: string): number | null {
+    // Parse to integer
+    const intValue = parseInt(value);
+
+    // Invalid integer returns as null value
+    if (isNaN(intValue)) {
+      return null;
+    }
+
+    return intValue;
+  }
+
+  setValue(value: number): void {
+    // Update local storage
+    localStorage.setItem(this.key, value.toString());
+  }
+}
+
+class StringLocalSessionValue extends BaseLocalSessionValue<string> {
+  getValue(value: string): string | null {
+    // The value is already a string so no need to do anything
+    return value;
+  }
+
+  setValue(value: string): void {
+    // Update local storage
+    localStorage.setItem(this.key, value);
+  }
+}
+
+export const useLocalSessionString = (key: string): LocalSessionValue<string> => new StringLocalSessionValue(key);
+export const useLocalSessionBool = (key: string): LocalSessionValue<boolean> => new BoolLocalSessionValue(key);
+export const useLocalSessionInt = (key: string): LocalSessionValue<number> => new IntLocalSessionValue(key);
