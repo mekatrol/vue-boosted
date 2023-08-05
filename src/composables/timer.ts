@@ -1,31 +1,42 @@
 import { onMounted, onUnmounted } from 'vue';
 
 export interface IntervalTimerCallback {
-  (): Promise<void>;
+  (): Promise<boolean>;
 }
 
-export const useIntervalTimer = (
-  intervalMs: number,
-  timerTickCallback: IntervalTimerCallback
-): void => {
+export const useIntervalTimer = (timerTickCallback: IntervalTimerCallback, intervalMs: number): void => {
   // Keep track of interval timer handle
   let timerHandle = undefined as number | undefined;
 
+  const stopTimer = () => {
+    if (timerHandle !== undefined) {
+      // Stop timer
+      clearInterval(timerHandle);
+
+      // Clear handle
+      timerHandle = undefined;
+    }
+  };
+
+  // Start timer when mounted
   onMounted(async () => {
     timerHandle = window.setInterval(async (): Promise<void> => {
       try {
-        // Await the task that is being executed
-        await timerTickCallback();
+        // Await the callback task
+        const continueTimer = await timerTickCallback();
 
-        // We swallow any errors because we assume
-        // that tickTask is catching its own errors
+        // If the callback returns false then stop timer
+        if (!continueTimer) {
+          stopTimer();
+        }
+
+        // Ignore any errors
       } catch {}
     }, intervalMs);
   });
 
+  // Stop timer when unmounted
   onUnmounted(() => {
-    if (timerHandle !== undefined) {
-      clearInterval(timerHandle);
-    }
+    stopTimer();
   });
 };
