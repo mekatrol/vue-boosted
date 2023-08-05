@@ -13,10 +13,12 @@
     "lint": "eslint --ext .js,.ts,.vue ./",
     "clean": "rimraf dist",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
-    "build": "npm run clean && npm run lint && npm run format && npm run build:esm && npm run build:cjs",
+    "build": "npm run clean && npm run lint && npm run format && npm run test:run && npm run build:esm && npm run build:cjs",
     "build:cjs": "tsc --module CommonJs --outDir dist/cjs",
     "build:esm": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch"
   },
   "repository": {
     "type": "git",
@@ -53,6 +55,7 @@
     "prettier": "^2.5.1",
     "rimraf": "^5.0.1",
     "ts-loader": "^9.4.4",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.1"
   }
 }
