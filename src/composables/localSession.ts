@@ -1,37 +1,39 @@
-import { WritableComputedRef, computed } from 'vue';
 import { stringToBoolean } from '../services/conversionService';
 
 export interface LocalSessionValue<T> {
-  value: WritableComputedRef<T | null>;
+  setting: T | null;
   remove(): void;
 }
 
 abstract class BaseLocalSessionValue<T> implements LocalSessionValue<T> {
   protected key: string;
-  public value: WritableComputedRef<T | null>;
 
   constructor(key: string) {
     this.key = key;
+  }
 
-    this.value = computed({
-      get: () => {
-        const value = localStorage.getItem(this.key);
+  public get setting(): T | null {
+    const value = localStorage.getItem(this.key);
 
-        if (value === null || value === undefined) {
-          return null;
-        }
+    // If there was not a local storage value then return null
+    if (value === null || value === undefined) {
+      return null;
+    }
 
-        return this.getValue(value);
-      },
-      set: (value) => {
-        if (value === undefined || value == null) {
-          localStorage.removeItem(this.key);
-          return;
-        }
+    // Get string value as type
+    const valueAsType = this.getValue(value);
 
-        this.setValue(value);
-      }
-    });
+    // Return value as type
+    return valueAsType;
+  }
+
+  public set setting(value: T | null) {
+    if (value === undefined || value == null) {
+      this.remove();
+      return;
+    }
+
+    this.setValue(value);
   }
 
   remove = (): void => {
@@ -45,6 +47,10 @@ abstract class BaseLocalSessionValue<T> implements LocalSessionValue<T> {
 
 class BoolLocalSessionValue extends BaseLocalSessionValue<boolean> {
   getValue(value: string): boolean | null {
+    if (value.toLowerCase() !== 'true' && value.toLowerCase() !== 'false' && value !== '1' && value !== '0') {
+      return null;
+    }
+
     // Return the string value casted to a boolean
     return stringToBoolean(value);
   }
@@ -58,7 +64,7 @@ class BoolLocalSessionValue extends BaseLocalSessionValue<boolean> {
 class IntLocalSessionValue extends BaseLocalSessionValue<number> {
   getValue(value: string): number | null {
     // Parse to integer
-    const intValue = parseInt(value);
+    const intValue = parseInt(value, 10);
 
     // Invalid integer returns as null value
     if (isNaN(intValue)) {

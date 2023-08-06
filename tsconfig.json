@@ -10,7 +10,13 @@
     // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
     /* Language and Environment */
     "target": "es6" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "lib": ["es5", "es2015", "es2016", "dom", "esnext"] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
+    "lib": [
+      "es5",
+      "es2015",
+      "es2016",
+      "dom",
+      "esnext"
+    ] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
     // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
@@ -29,7 +35,9 @@
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
-    "types": ["node"] /* Specify type package names to be included without being referenced in a source file. */,
+    "types": [
+      "node"
+    ] /* Specify type package names to be included without being referenced in a source file. */,
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
@@ -98,6 +106,13 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["./src/**/*.ts", "./src/**/*.vue"],
-  "exclude": ["./src/**/*.test.ts"]
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.vue"
+  ],
+  "exclude": [
+    "./src/**/*.test.ts",
+    "./src/**/*.test.vue",
+    "./src/testing"
+  ]
 }
