@@ -18,20 +18,34 @@ export const useIntervalTimer = (timerTickCallback: IntervalTimerCallback, inter
     }
   };
 
+  // We need to keep track if we are in callback in case previous callback
+  // still executing
+  let inTickCallback = false;
+
   // Start timer when mounted
   onMounted(async () => {
     timerHandle = window.setInterval(async (): Promise<void> => {
       try {
-        // Await the callback task
-        const continueTimer = await timerTickCallback();
+        if (!inTickCallback) {
+          // Entering callback method
+          inTickCallback = true;
 
-        // If the callback returns false then stop timer
-        if (!continueTimer) {
-          stopTimer();
+          // Await the callback task
+          const continueTimer = await timerTickCallback();
+
+          // If the callback returns false then stop timer
+          if (!continueTimer) {
+            stopTimer();
+          }
+
+          // No longer in callback method
+          inTickCallback = false;
         }
 
         // Ignore any errors
-      } catch {}
+      } catch {
+        inTickCallback = false;
+      }
     }, intervalMs);
   });
 
