@@ -1,6 +1,6 @@
-import { MarkdownState } from './MarkdownState';
+import { MarkdownParseResult } from './MarkdownParseResult';
 import { MarkdownToken } from './MarkdownToken';
 
 export interface MarkdownTokenReplacer {
-  (match: RegExpExecArray, state: MarkdownState): MarkdownToken;
+  (match: RegExpExecArray, result: MarkdownParseResult): MarkdownToken;
 }

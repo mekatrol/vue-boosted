@@ -2,11 +2,46 @@ import { describe, expect, it } from 'vitest';
 import { MarkdownTokeniser } from './MarkdownParser';
 import { MarkdownTokenProcessor } from './MarkdownTokenProcessor';
 import { MarkdownTokenType } from './MarkdownTokenType';
+import { MarkdownToken } from './MarkdownToken';
+import { breakMatch } from './MarkdownLineSplitter';
+
+const customMatchAllProcessor = {
+  regex: /.*/, // Match anything including empy lines
+  tokenise: (match, state) => {
+    return { type: MarkdownTokenType.p, input: match[0], output: `<p><span>${match[0]}</span></p>`, line: state.line, column: state.column } as MarkdownToken;
+  }
+} as MarkdownTokenProcessor;
+
+const processors = [
+  // Newline ('\r\n')
+  {
+    regex: /^(\r\n|\r|\n)$/,
+    tokenise: (match, state) => {
+      return { type: MarkdownTokenType.newline, input: match[0], output: match[0], line: state.line, column: state.column } as MarkdownToken;
+    }
+  } as MarkdownTokenProcessor,
+
+  // Breaks ('  \r\n' or '<br>\r\n')
+  {
+    regex: breakMatch,
+    tokenise: (match, state) => {
+      return { type: MarkdownTokenType.break, input: match[0], output: match[1], line: state.line, column: state.column } as MarkdownToken;
+    }
+  } as MarkdownTokenProcessor,
+
+  // Headings
+  {
+    regex: /^((#{1,6})\s+(.*))\s*$/,
+    tokenise: (match, state) => {
+      const h = 'h' + match[2].length;
+      return { type: h, input: match[0], output: `<${h}>${match[3]}</${h}>`, line: state.line, column: state.column } as MarkdownToken;
+    }
+  } as MarkdownTokenProcessor
+];
 
 describe('para tokens', () => {
   it('single line para token', () => {
-    const processors: MarkdownTokenProcessor[] = [];
-    const tokeniser = new MarkdownTokeniser(processors);
+    const tokeniser = new MarkdownTokeniser(processors, customMatchAllProcessor);
 
     const tokenStack = tokeniser.parse('abcdef');
 
@@ -17,11 +52,10 @@ describe('para tokens', () => {
     expect(token.line).toBe(1);
     expect(token.column).toBe(1);
     expect(token.input).toBe('abcdef');
-    expect(token.output).toBe('abcdef');
+    expect(token.output).toBe('<p><span>abcdef</span></p>');
   });
 
   it('two line para token', () => {
-    const processors: MarkdownTokenProcessor[] = [];
     const tokeniser = new MarkdownTokeniser(processors);
 
     const tokenStack = tokeniser.parse('abcdef  \r\n012345a<br>\r\n\r\n');
@@ -33,7 +67,7 @@ describe('para tokens', () => {
     expect(token.line).toBe(1);
     expect(token.column).toBe(1);
     expect(token.input).toBe('abcdef');
-    expect(token.output).toBe('abcdef');
+    expect(token.output).toBe('<p>abcdef</p>');
 
     token = tokenStack.tokens[1];
     expect(token.type).toBe(MarkdownTokenType.break);
@@ -47,7 +81,7 @@ describe('para tokens', () => {
     expect(token.line).toBe(2);
     expect(token.column).toBe(1);
     expect(token.input).toBe('012345a');
-    expect(token.output).toBe('012345a');
+    expect(token.output).toBe('<p>012345a</p>');
 
     token = tokenStack.tokens[3];
     expect(token.type).toBe(MarkdownTokenType.break);
@@ -58,7 +92,6 @@ describe('para tokens', () => {
   });
 
   it('headings', () => {
-    const processors: MarkdownTokenProcessor[] = [];
     const tokeniser = new MarkdownTokeniser(processors);
 
     const tokenStack = tokeniser.parse('# this is h1\n## this is h2<br>\r\n### this is h3');
@@ -99,5 +132,48 @@ describe('para tokens', () => {
     expect(token.column).toBe(1);
     expect(token.input).toBe('### this is h3');
     expect(token.output).toBe('<h3>this is h3</h3>');
+  });
+
+  it('para', () => {
+    const tokeniser = new MarkdownTokeniser(processors);
+
+    const tokenStack = tokeniser.parse('this is p1\n this is p2<br>\r\n this is p3');
+
+    expect(tokenStack.tokens.length).toBe(5);
+
+    let token = tokenStack.tokens[0];
+    expect(token.type).toBe(MarkdownTokenType.p);
+    expect(token.line).toBe(1);
+    expect(token.column).toBe(1);
+    expect(token.input).toBe('this is p1');
+    expect(token.output).toBe('<p>this is p1</p>');
+
+    token = tokenStack.tokens[1];
+    expect(token.type).toBe(MarkdownTokenType.newline);
+    expect(token.line).toBe(1);
+    expect(token.column).toBe(11);
+    expect(token.input).toBe('\n');
+    expect(token.output).toBe('\n');
+
+    token = tokenStack.tokens[2];
+    expect(token.type).toBe(MarkdownTokenType.p);
+    expect(token.line).toBe(2);
+    expect(token.column).toBe(1);
+    expect(token.input).toBe(' this is p2');
+    expect(token.output).toBe('<p> this is p2</p>');
+
+    token = tokenStack.tokens[3];
+    expect(token.type).toBe(MarkdownTokenType.break);
+    expect(token.line).toBe(2);
+    expect(token.column).toBe(12);
+    expect(token.input).toBe('<br>\r\n');
+    expect(token.output).toBe('<br>');
+
+    token = tokenStack.tokens[4];
+    expect(token.type).toBe(MarkdownTokenType.p);
+    expect(token.line).toBe(3);
+    expect(token.column).toBe(1);
+    expect(token.input).toBe(' this is p3');
+    expect(token.output).toBe('<p> this is p3</p>');
   });
 });
