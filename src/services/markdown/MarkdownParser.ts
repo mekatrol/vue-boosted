@@ -14,7 +14,8 @@ export class MarkdownTokeniser {
     this._processors.push({
       regex: breakMatch,
       tokenise: (match, state) => {
-        const newLineTrimmed = match[0].replace(/(\r\n|\r|\n)/, '');
+        // Remove any newline characters at end of line
+        const newLineTrimmed = match[0].replace(/(\r\n|\r|\n)$/, '');
 
         // Was this a markdown break or just a newline? If an actual break then add token
         if (newLineTrimmed === '  ' || newLineTrimmed.toLowerCase() === '<br>') {
