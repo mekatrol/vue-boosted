@@ -1,4 +1,4 @@
-import { MarkdownLineSplitter } from './MarkdownLineSplitter';
+import { MarkdownLineSplitter, breakMatch } from './MarkdownLineSplitter';
 import { MarkdownState } from './MarkdownState';
 import { MarkdownToken } from './MarkdownToken';
 import { MarkdownTokenProcessor } from './MarkdownTokenProcessor';
@@ -10,7 +10,24 @@ export class MarkdownTokeniser {
   constructor(processors: MarkdownTokenProcessor[]) {
     this._processors = [...processors];
 
-    // Headings (are the full line)
+    // Breaks
+    this._processors.push({
+      regex: breakMatch,
+      tokenise: (match, state) => {
+        const newLineTrimmed = match[0].replace(/(\r\n|\r|\n)/, '');
+
+        // Was this a markdown break or just a newline? If an actual break then add token
+        if (newLineTrimmed === '  ' || newLineTrimmed.toLowerCase() === '<br>') {
+          const token = { type: MarkdownTokenType.break, input: match[0], output: match[1], line: state.line, column: state.column } as MarkdownToken;
+          state.tokens.push(token);
+        }
+
+        state.line++;
+        state.column = 1;
+      }
+    });
+
+    // Headings
     this._processors.push({
       regex: /^((#{1,6})\s+(.*))\s*$/,
       tokenise: (match, state) => {
@@ -29,28 +46,9 @@ export class MarkdownTokeniser {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Remove line termination
-      const newLineTrimmed = line.replace(/(\r\n|\r|\n)$/, '');
-
-      if (newLineTrimmed.length === 0) {
-        // This is a blank line so just continue
-        state.line++;
-        state.column = 1;
-        continue;
-      }
-
-      if (newLineTrimmed === '  ' || newLineTrimmed.toLowerCase() === '<br>') {
-        const token = { type: MarkdownTokenType.break, input: line, output: newLineTrimmed, line: state.line, column: state.column } as MarkdownToken;
-        state.tokens.push(token);
-
-        state.line++;
-        state.column = 1;
-        continue;
-      }
-
       let processOffset = 0;
-      while (processOffset < newLineTrimmed.length) {
-        const text = newLineTrimmed.substring(processOffset);
+      while (processOffset < line.length) {
+        const text = line.substring(processOffset);
         const [match, processor] = this.firstMatch(text);
 
         // Match found, so exit loop

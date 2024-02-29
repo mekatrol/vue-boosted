@@ -1,5 +1,5 @@
 // Can be either '  \r\n' or '<br>\r\n'
-const newlineMatch = /(\s\s|<br>)(\r\n|\n|\r)|(\r\n|\r|\n)/i;
+export const breakMatch = /(\s\s|<br>)(\r\n|\n|\r)|(\r\n|\r|\n)/i;
 
 export class MarkdownLineSplitter {
   public static parseLines = (s: string): string[] => {
@@ -15,7 +15,7 @@ export class MarkdownLineSplitter {
       }
 
       // Try and find a break match
-      const match = newlineMatch.exec(text);
+      const match = breakMatch.exec(text);
 
       if (!match) {
         // No breaks so add remaining text and exit loop
