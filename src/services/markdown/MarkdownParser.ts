@@ -18,7 +18,7 @@ export class MarkdownTokeniser {
         const newLineTrimmed = match[0].replace(/(\r\n|\r|\n)$/, '');
 
         // Was this a markdown break or just a newline? If an actual break then add token
-        if (newLineTrimmed === '  ' || newLineTrimmed.toLowerCase() === '<br>') {
+        if (newLineTrimmed.length > 0) {
           const token = { type: MarkdownTokenType.break, input: match[0], output: match[1], line: state.line, column: state.column } as MarkdownToken;
           state.tokens.push(token);
         }
