@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { MarkdownTokeniser } from './MarkdownParser';
 import { MarkdownTokenProcessor } from './MarkdownTokenProcessor';
 import { MarkdownTokenType } from './MarkdownTokenType';
-import { MarkdownLineSplitter } from './MarkdownLineSplitter';
 
 describe('para tokens', () => {
   it('single line para token', () => {
@@ -93,57 +92,5 @@ describe('para tokens', () => {
     expect(token.column).toBe(1);
     expect(token.input).toBe('### this is h3');
     expect(token.output).toBe('<h3>this is h3</h3>');
-  });
-});
-
-describe('lines', () => {
-  it('zero lines', () => {
-    const lines = MarkdownLineSplitter.parseLines('');
-    expect(lines.length).toBe(0);
-  });
-
-  it('single line', () => {
-    const lines = MarkdownLineSplitter.parseLines('abcdef');
-    expect(lines.length).toBe(1);
-    expect(lines[0]).toBe('abcdef');
-  });
-
-  it('single line with new line following', () => {
-    const lines = MarkdownLineSplitter.parseLines('abcdef\r\n');
-    expect(lines.length).toBe(2);
-    expect(lines[0]).toBe('abcdef');
-    expect(lines[1]).toBe('\r\n');
-  });
-
-  it('two lines', () => {
-    const lines = MarkdownLineSplitter.parseLines('abcdef\r\n123456');
-    expect(lines.length).toBe(3);
-    expect(lines[0]).toBe('abcdef');
-    expect(lines[1]).toBe('\r\n');
-    expect(lines[2]).toBe('123456');
-  });
-
-  it('two lines with CRLF', () => {
-    const lines = MarkdownLineSplitter.parseLines('abcdef  \r\n123456');
-    expect(lines.length).toBe(3);
-    expect(lines[0]).toBe('abcdef');
-    expect(lines[1]).toBe('  \r\n');
-    expect(lines[2]).toBe('123456');
-  });
-
-  it('two lines with <br>', () => {
-    const lines = MarkdownLineSplitter.parseLines('abcdef<br>\r\n123456');
-    expect(lines.length).toBe(3);
-    expect(lines[0]).toBe('abcdef');
-    expect(lines[1]).toBe('<br>\r\n');
-    expect(lines[2]).toBe('123456');
-  });
-
-  it('\n', () => {
-    const lines = MarkdownLineSplitter.parseLines('# this is h1\n## this is h2<br>\r\n### this is h3');
-    expect(lines.length).toBe(5);
-    expect(lines[0]).toBe('# this is h1');
-    expect(lines[1]).toBe('\n');
-    expect(lines[2]).toBe('## this is h2');
   });
 });
