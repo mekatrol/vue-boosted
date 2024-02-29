@@ -1,10 +1,11 @@
 import { friendlyCodeToNumberCode } from './htmlEncodings';
 
 type ParseMatchFunction = (match: string) => string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type StringReplacerFunction = (substring: string, ...args: any[]) => string;
 
 export interface MarkdownRule {
-  regex: RegExp;
+  pattern: RegExp;
   replacer: StringReplacerFunction | string;
 }
 
@@ -50,7 +51,6 @@ export class MarkdownToHtmlParser {
   parse = (text: string): string => {
     text = this.removeNonWhitespace(text);
     text = this.escapedToUnicode(text);
-    // text = this.encodeSpecial(text);
 
     let temp = this.block(text);
 
@@ -68,7 +68,7 @@ export class MarkdownToHtmlParser {
    */
   processMarkdown = (text: string, rules: MarkdownRule[], parse: ParseMatchFunction): string => {
     for (const rule of rules) {
-      const { regex, replacer } = rule;
+      const { pattern: regex, replacer } = rule;
       const content = regex.exec(text);
 
       // No content found for the current rule therefore we can move to the next
@@ -112,7 +112,7 @@ export class MarkdownToHtmlParser {
         // - Bold and Italic => `**_mixed_**` TODO this doesn't check for
         //   correctly matching tags.
         {
-          regex: /([*_]{1,3})((.|\n)+?)\1/g,
+          pattern: /([*_]{1,3})((.|\n)+?)\1/g,
           replacer: (_, tokens, content): string => {
             tokens = tokens.length;
             content = this.inline(content);
@@ -133,12 +133,12 @@ export class MarkdownToHtmlParser {
         // - Strikethrough => `~~strike-through~~`
         // - Delete => `~~~delete~~`
         {
-          regex: /(~{1,3})((.|\n)+?)\1/g,
+          pattern: /(~{1,3})((.|\n)+?)\1/g,
           replacer: (_, tokens, content) => this.tag(['u', 's', 'del'][tokens.length - 1], this.inline(content))
         },
 
         // - Replace remaining lines with a break tag => `<br />`
-        { regex: / {2}\n|\n {2}/g, replacer: '<br />' }
+        { pattern: / {2}\n|\n {2}/g, replacer: '<br />' }
       ],
       this.inline
     );
@@ -188,24 +188,24 @@ export class MarkdownToHtmlParser {
       text,
       [
         // comments
-        { regex: /<!--((.|\n)*?)-->/g, replacer: '<!--$1-->' },
+        { pattern: /<!--((.|\n)*?)-->/g, replacer: '<!--$1-->' },
 
         // pre format block
         {
-          regex: /^("""|```)(.*)\n((.*\n)*?)\1/gm,
+          pattern: /^("""|```)(.*)\n((.*\n)*?)\1/gm,
           replacer: (_, wrapper, classNames, text) =>
             wrapper === '"""' ? this.tag('div', this.parse(text), { class: classNames }) : this.tag('pre', this.tag('code', this.encodeHtml(text), { class: classNames }))
         },
 
         // blockquotes
         {
-          regex: /(^>.*\n?)+/gm,
+          pattern: /(^>.*\n?)+/gm,
           replacer: this.chain('blockquote', /^> ?(.*)$/gm, '$1', this.inline)
         },
 
         // tables
         {
-          regex: /((^|\n)\|.+)+/g,
+          pattern: /((^|\n)\|.+)+/g,
           replacer: this.chain('table', /^.*(\n\|---.*?)?$/gm, (match, subline) =>
             this.chain('tr', /\|(-?)([^|]+)\1(\|$)?/gm, (_ /* match */, type, text) => this.tag(type || subline ? 'th' : 'td', this.inlineBlock(text)))(
               match.slice(0, match.length - (subline || '').length)
@@ -214,19 +214,19 @@ export class MarkdownToHtmlParser {
         },
 
         // lists
-        { regex: /(?:(^|\n)([+-]|\d+\.) +(.*(\n[\t ]+.*)*))+/g, replacer: this.list },
+        { pattern: /(?:(^|\n)([+-]|\d+\.) +(.*(\n[\t ]+.*)*))+/g, replacer: this.list },
 
         //anchor
-        { regex: /#\[([^\]]+?)]/g, replacer: '<a name="$1"></a>' },
+        { pattern: /#\[([^\]]+?)]/g, replacer: '<a name="$1"></a>' },
 
         // headlines
         {
-          regex: /^(#+) +(.*)$/gm,
+          pattern: /^(#+) +(.*)$/gm,
           replacer: (_, headerSyntax, headerText) => this.tag(`h${headerSyntax.length}`, this.inlineBlock(headerText))
         },
 
         // horizontal rule
-        { regex: /^(===+|---+)(?=\s*$)/gm, replacer: '<hr>' }
+        { pattern: /^(===+|---+)(?=\s*$)/gm, replacer: '<hr>' }
       ],
       this.parse
     );
