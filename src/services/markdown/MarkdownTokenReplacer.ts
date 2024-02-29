@@ -1,5 +1,6 @@
 import { MarkdownState } from './MarkdownState';
+import { MarkdownToken } from './MarkdownToken';
 
 export interface MarkdownTokenReplacer {
-  (match: RegExpExecArray, state: MarkdownState): void;
+  (match: RegExpExecArray, state: MarkdownState): MarkdownToken;
 }

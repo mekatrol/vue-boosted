@@ -10,21 +10,19 @@ export class MarkdownTokeniser {
   constructor(processors: MarkdownTokenProcessor[]) {
     this._processors = [...processors];
 
-    // Breaks
+    // Newline ('\r\n')
+    this._processors.push({
+      regex: /^(\r\n|\r|\n)$/,
+      tokenise: (match, state) => {
+        return { type: MarkdownTokenType.newline, input: match[0], output: match[0], line: state.line, column: state.column } as MarkdownToken;
+      }
+    });
+
+    // Breaks ('  \r\n' or '<br>\r\n')
     this._processors.push({
       regex: breakMatch,
       tokenise: (match, state) => {
-        // Remove any newline characters at end of line
-        const newLineTrimmed = match[0].replace(/(\r\n|\r|\n)$/, '');
-
-        // Was this a markdown break or just a newline? If an actual break then add token
-        if (newLineTrimmed.length > 0) {
-          const token = { type: MarkdownTokenType.break, input: match[0], output: match[1], line: state.line, column: state.column } as MarkdownToken;
-          state.tokens.push(token);
-        }
-
-        state.line++;
-        state.column = 1;
+        return { type: MarkdownTokenType.break, input: match[0], output: match[1], line: state.line, column: state.column } as MarkdownToken;
       }
     });
 
@@ -33,8 +31,7 @@ export class MarkdownTokeniser {
       regex: /^((#{1,6})\s+(.*))\s*$/,
       tokenise: (match, state) => {
         const h = 'h' + match[2].length;
-        const token = { type: h, input: match[0], output: `<${h}>${match[3]}</${h}>`, line: state.line, column: state.column } as MarkdownToken;
-        state.tokens.push(token);
+        return { type: h, input: match[0], output: `<${h}>${match[3]}</${h}>`, line: state.line, column: state.column } as MarkdownToken;
       }
     });
   }
@@ -65,10 +62,19 @@ export class MarkdownTokeniser {
           this.addParaToken(textBeforeMatch, state);
         }
 
-        processor.tokenise(match, state);
+        const token = processor.tokenise(match, state);
+        state.tokens.push(token);
 
         // Move process offset to character after match
         processOffset += match.index + match[0].length;
+
+        // Advance source line number?
+        if (token.type === MarkdownTokenType.newline || token.type === MarkdownTokenType.break) {
+          state.line++;
+          state.column = 1;
+        } else {
+          state.column = processOffset + 1;
+        }
       }
     }
 
