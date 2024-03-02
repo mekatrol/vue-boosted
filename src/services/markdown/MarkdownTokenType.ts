@@ -10,5 +10,6 @@ export enum MarkdownTokenType {
   break = 'br',
   bold = 'bold',
   italic = 'italic',
-  bolditalic = 'bolditalic'
+  bolditalic = 'bolditalic',
+  blockquote = 'blockquote'
 }
