@@ -30,7 +30,7 @@ describe('para tokens', () => {
   it('two line para token', () => {
     const tokeniser = new MarkdownTokeniser(defaultProcessors);
 
-    const tokenStack = tokeniser.parse('abcdef  \r\n012345a<br>\r\n\r\n');
+    const tokenStack = tokeniser.parse('abcdef  \r\n012345a<br>\n\n');
 
     expect(tokenStack.tokens.length).toBe(5);
 
@@ -45,7 +45,7 @@ describe('para tokens', () => {
     expect(token.type).toBe(MarkdownTokenType.break);
     expect(token.line).toBe(1);
     expect(token.column).toBe(7);
-    expect(token.input).toBe('  \r\n');
+    expect(token.input).toBe('  \n');
     expect(token.output).toBe('  ');
 
     token = tokenStack.tokens[2];
@@ -59,14 +59,14 @@ describe('para tokens', () => {
     expect(token.type).toBe(MarkdownTokenType.break);
     expect(token.line).toBe(2);
     expect(token.column).toBe(8);
-    expect(token.input).toBe('<br>\r\n');
+    expect(token.input).toBe('<br>\n');
     expect(token.output).toBe('<br>');
   });
 
   it('para', () => {
     const tokeniser = new MarkdownTokeniser(defaultProcessors);
 
-    const tokenStack = tokeniser.parse('this is p1\n this is p2<br>\r\n this is p3');
+    const tokenStack = tokeniser.parse('this is p1\n this is p2<br>\n this is p3');
 
     expect(tokenStack.tokens.length).toBe(5);
 
@@ -95,7 +95,7 @@ describe('para tokens', () => {
     expect(token.type).toBe(MarkdownTokenType.break);
     expect(token.line).toBe(2);
     expect(token.column).toBe(12);
-    expect(token.input).toBe('<br>\r\n');
+    expect(token.input).toBe('<br>\n');
     expect(token.output).toBe('<br>');
 
     token = tokenStack.tokens[4];

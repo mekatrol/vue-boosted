@@ -26,8 +26,12 @@ export class MarkdownLineSplitter {
       // Insert any text from before match
       lines.push(text.slice(0, match.index));
 
-      // Insert match
-      lines.push(match[0]);
+      // Normalise both '\r' and '\r\n' to '\n'
+      // so that future use only need to consider '\n'
+      const lineEnd = match[0].replace(/(\r|\r\n)$/, '\n');
+
+      // Add line
+      lines.push(lineEnd);
 
       // Move process offset to character after match
       processOffset += match.index + match[0].length;

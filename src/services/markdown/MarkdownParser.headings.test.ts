@@ -15,7 +15,7 @@ describe('headings', () => {
   it('headings', () => {
     const tokeniser = new MarkdownTokeniser(defaultProcessors, customMatchAllProcessor);
 
-    const tokenStack = tokeniser.parse('# this is h1\n## this is h2<br>\r\n### this is h3');
+    const tokenStack = tokeniser.parse('# this is h1\n## this is h2<br>\n### this is h3');
 
     expect(tokenStack.tokens.length).toBe(5);
 
@@ -44,7 +44,7 @@ describe('headings', () => {
     expect(token.type).toBe(MarkdownTokenType.break);
     expect(token.line).toBe(2);
     expect(token.column).toBe(14);
-    expect(token.input).toBe('<br>\r\n');
+    expect(token.input).toBe('<br>\n');
     expect(token.output).toBe('<br>');
 
     token = tokenStack.tokens[4];
