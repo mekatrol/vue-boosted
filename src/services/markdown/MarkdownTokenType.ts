@@ -7,5 +7,8 @@ export enum MarkdownTokenType {
   h5 = 'h5',
   h6 = 'h6',
   p = 'p',
-  break = 'br'
+  break = 'br',
+  bold = 'bold',
+  italic = 'italic',
+  bolditalic = 'bolditalic'
 }
