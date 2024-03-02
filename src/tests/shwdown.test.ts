@@ -33,16 +33,44 @@ const headerTranslationExtension: ShowdownExtension = {
   }
 };
 
+// Table translation extension
+// Header translation extension
+const markdownTablePattern = /(style="text-align:(\w+);")/gim;
+const tableTranslationExtension: ShowdownExtension = {
+  type: 'listener',
+  listeners: {
+    'tables.after': (_event, text): string => {
+      // Change text like 'style="text-align:left;"' to 'class="content table-col-left"'
+      text = text.replace(markdownTablePattern, (s) => {
+        // Match for style pattern (we want a new instance so that we do 'fresh' match here)
+        const match = new RegExp(markdownTablePattern.source, markdownTablePattern.flags).exec(s);
+
+        // No match then do nothing
+        if (!match) {
+          return s;
+        }
+
+        // Swap style to class
+        return `class="content table-col-${match[2]}"`;
+      });
+
+      // return the changed text
+      return text;
+    }
+  }
+};
+
 describe('table tests', () => {
   it('simple table', () => {
-    const markdown = '| h1    |    h2   |      h3 |\n' + '|:------|:-------:|--------:|\n' + '| 100   | [a][1]  | ![b][2] |\n' + '| *foo* | **bar** | ~~baz~~ |';
+    showdown.extension('table-translation', tableTranslationExtension);
+    const converter = new showdown.Converter({ extensions: ['table-translation'] });
 
-    const converter = new showdown.Converter();
+    const markdown = '| h1    |    h2   |      h3 |\n' + '|:------|:-------:|--------:|\n' + '| 100   | [a][1]  | ![b][2] |\n' + '| *foo* | **bar** | ~~baz~~ |';
     converter.setOption('tables', true);
     const html = converter.makeHtml(markdown);
 
     expect(html).toBe(
-      '<table>\n<thead>\n<tr>\n<th style="text-align:left;">h1</th>\n<th style="text-align:center;">h2</th>\n<th style="text-align:right;">h3</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style="text-align:left;">100</td>\n<td style="text-align:center;">[a][1]</td>\n<td style="text-align:right;">![b][2]</td>\n</tr>\n<tr>\n<td style="text-align:left;"><em>foo</em></td>\n<td style="text-align:center;"><strong>bar</strong></td>\n<td style="text-align:right;">~~baz~~</td>\n</tr>\n</tbody>\n</table>'
+      '<table>\n<thead>\n<tr>\n<th class="content table-col-left">h1</th>\n<th class="content table-col-center">h2</th>\n<th class="content table-col-right">h3</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td class="content table-col-left">100</td>\n<td class="content table-col-center">[a][1]</td>\n<td class="content table-col-right">![b][2]</td>\n</tr>\n<tr>\n<td class="content table-col-left"><em>foo</em></td>\n<td class="content table-col-center"><strong>bar</strong></td>\n<td class="content table-col-right">~~baz~~</td>\n</tr>\n</tbody>\n</table>'
     );
   });
 });
@@ -50,7 +78,6 @@ describe('table tests', () => {
 describe('table tests', () => {
   it('h1', () => {
     showdown.extension('header-translation', headerTranslationExtension);
-
     const converter = new showdown.Converter({ extensions: ['header-translation'] });
 
     let markdown = '# H1 text goes here & some other stuff too {: #header-id }';
