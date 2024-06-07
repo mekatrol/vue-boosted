@@ -19,4 +19,4 @@ Just run the following from within you Vue JS project. TypeScript types included
 
 ## Source Code
 
-All source code is avaialble at [vue-boosted on GitHub](https://github.com/mekatrol/vue-boosted).
+All source code is available at [vue-boosted on GitHub](https://github.com/mekatrol/vue-boosted).

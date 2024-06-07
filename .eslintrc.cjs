@@ -94,16 +94,13 @@ module.exports = {
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
-    'no-console':
-      process.env.NODE_ENV === 'production'
-        ? ['error', { allow: ['info', 'warn', 'error'] }]
-        : ['warn', { allow: ['info', 'warn', 'error'] }],
+    'no-console': process.env.NODE_ENV === 'production' ? ['error', { allow: ['info', 'warn', 'error'] }] : ['warn', { allow: ['info', 'warn', 'error'] }],
 
-    // The core 'no-unused-vars' rules (in the eslint:recommended ruleset)
+    // The core 'no-unused-vars' rules (in the eslint:recommended rule set)
     // does not work with type definitions
     'no-unused-vars': 'off',
 
-    // Should use 'const' and 'let', but not 'var' for declarian variables
+    // Should use 'const' and 'let', but not 'var' for declaration variables
     // 'var' has global scope!
     'no-var': 'error',
 
