@@ -1,10 +1,21 @@
 {
   "name": "vue-boosted",
-  "version": "0.0.10",
+  "version": "0.0.14",
   "description": "Vue.js (TypeScript) accessible (a11y), testable (UI automation) Vue component and utilities library.",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
+  },
   "type": "module",
   "files": [
     "dist"
@@ -14,11 +25,12 @@
     "clean": "rimraf dist",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "build": "npm run clean && npm run lint && npm run test:run && npm run build:esm && npm run build:cjs",
-    "build:cjs": "tsc --module CommonJs --outDir dist/cjs",
-    "build:esm": "tsc",
+    "build:cjs": "vue-tsc --noEmit --skipLibCheck --module CommonJs --outDir dist/cjs",
+    "build:esm": "vue-tsc --noEmit --skipLibCheck && vite build",
     "watch": "tsc --watch",
     "test:run": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -49,6 +61,7 @@
     "@types/showdown": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
+    "@vitejs/plugin-vue": "^5.0.5",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -56,7 +69,9 @@
     "prettier": "^3.3.1",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^1.6.0",
+    "vue-tsc": "^2.0.19"
   },
   "dependencies": {
     "showdown": "^2.1.0"
