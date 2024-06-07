@@ -1,6 +1,6 @@
 import { Ref, ref } from 'vue';
 
-export const useIsOSDarkMode = (): Ref<boolean> => {
+export const useOSDarkMode = (): Ref<boolean> => {
   const isDarkMode = ref(false);
 
   // Set initial value from OS setting

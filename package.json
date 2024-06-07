@@ -1,6 +1,6 @@
 {
   "name": "vue-boosted",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Vue.js (TypeScript) accessible (a11y), testable (UI automation) Vue component and utilities library.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
