@@ -92,6 +92,24 @@ class StringLocalSessionValue extends BaseLocalSessionValue<string> {
   }
 }
 
+class JsonObjectLocalSessionValue<T> extends BaseLocalSessionValue<T> {
+  getValue(value: string): T | null {
+    // No value set then return null
+    if (!value || value.length === 0) {
+      return null;
+    }
+
+    // Convert from JSON to value and return
+    return JSON.parse(value) as T;
+  }
+
+  setValue(value: T): void {
+    // Convert to JSON string and store
+    localStorage.setItem(this.key, JSON.stringify(value));
+  }
+}
+
+export const useLocalSessionJsonObject = <T>(key: string): LocalSessionValue<T> => new JsonObjectLocalSessionValue<T>(key);
 export const useLocalSessionString = (key: string): LocalSessionValue<string> => new StringLocalSessionValue(key);
 export const useLocalSessionBool = (key: string): LocalSessionValue<boolean> => new BoolLocalSessionValue(key);
 export const useLocalSessionInt = (key: string): LocalSessionValue<number> => new IntLocalSessionValue(key);

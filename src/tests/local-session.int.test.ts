@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { useLocalStorageMock } from '../tests/localStorageMock';
-import { useLocalSessionInt } from '../composables/localSession';
+import { useLocalStorageMock } from '../tests/local-storage-mock';
+import { useLocalSessionInt } from '../composables/local-session';
 
 const mockLocalStorage = useLocalStorageMock();
 
